@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.smartrecorderapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.smartrecorderapp"
@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.material3)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
