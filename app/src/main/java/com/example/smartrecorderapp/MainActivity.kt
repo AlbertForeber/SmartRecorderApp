@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableLongStateOf
@@ -60,6 +61,9 @@ class MainActivity : ComponentActivity() {
                 var selectedDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
                 val context = LocalContext.current
                 val provider = ViewModelProvider(this)
+                //
+                var lesson by remember { mutableStateOf("") }
+                //
                 lessonLDB = provider[ViewModelLDB::class]
                 val day = lessonLDB.getDays()?.observeAsState(initial = listOf())
                 Scaffold(
@@ -106,11 +110,15 @@ class MainActivity : ComponentActivity() {
                     Column(modifier = Modifier.padding(innerPadding)) {}
 
                     if (isDialog) {
+                        LaunchedEffect(Unit) {
+                            lessonLDB.getDay(1, lessons = { lesson = it }
+                            )
+                        }
                         AddLesson(
                             {
                                 isDialog = false
                                 if (day != null) {
-                                    Toast.makeText(context, "${day.value[0].lessons}, ${day.value.last().lessons}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context,  "$lesson, ${day.value[0].lessons}, ${day.value.last().lessons}", Toast.LENGTH_SHORT).show()
                                 }
                             },
                             lessonLDB

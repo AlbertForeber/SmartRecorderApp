@@ -12,7 +12,7 @@ interface DaysDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertDay(day: Day)
     @Query("SELECT * FROM Day WHERE id == :id")
-    fun getDay(id: Int): Day
+    suspend fun getDay(id: Int): Day
     @Query("DELETE FROM Day WHERE id == :id")
     fun deleteDayByID(id: Int)
     @Query ("SELECT * FROM Day")
