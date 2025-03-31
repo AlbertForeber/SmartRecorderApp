@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
                     Column(modifier = Modifier.padding(innerPadding)) {}
 
                     if (isDialog) {
-                        LaunchedEffect(Unit) {
+                        LaunchedEffect(day?.value?.get(0)?.lessons) {
                             lessonLDB.getDay(1, lessons = { lesson = it }
                             )
                         }
@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
                             {
                                 isDialog = false
                                 if (day != null) {
-                                    Toast.makeText(context,  "$lesson, ${day.value[0].lessons}, ${day.value.last().lessons}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, lesson, Toast.LENGTH_SHORT).show()
                                 }
                             },
                             lessonLDB

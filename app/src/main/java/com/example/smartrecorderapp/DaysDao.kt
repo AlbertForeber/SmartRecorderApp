@@ -17,4 +17,6 @@ interface DaysDao {
     fun deleteDayByID(id: Int)
     @Query ("SELECT * FROM Day")
     fun getDays(): LiveData<List<Day>>
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updateDay(day: Day)
 }
