@@ -31,6 +31,12 @@ class ViewModelLDB(application: Application): AndroidViewModel(application) {
         }
     }
 
+    fun updateDay(id: Int, string: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            daysDaoModel?.updateDay(Day(id, string))
+        }
+    }
+
     fun getDays(): LiveData<List<Day>>? {
         return allDays
     }
