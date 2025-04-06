@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
@@ -107,19 +108,23 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
 
-                    Column(modifier = Modifier.padding(innerPadding)) {}
+                    // Получение нового списка при добавлении дня
+                    LaunchedEffect(isDialog) {
+                        lessonLDB.getDay(1, lessons = { lesson = it }
+                        )
+                    }
+
+                    var lessonList = lesson.split('/')
+                    LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                        items(count = lessonList.size) {
+                            Text(lessonList[it])
+                        }
+                    }
 
                     if (isDialog) {
-                        LaunchedEffect(Unit) {
-                            lessonLDB.getDay(1, lessons = { lesson = it }
-                            )
-                        }
                         AddLesson(
                             {
                                 isDialog = false
-                                if (day != null) {
-                                    Toast.makeText(context,  "$lesson, ${day.value[0].lessons}, ${day.value.last().lessons}", Toast.LENGTH_SHORT).show()
-                                }
                             },
                             lessonLDB
                         )

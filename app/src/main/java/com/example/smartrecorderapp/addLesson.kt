@@ -154,7 +154,7 @@ fun AddLesson(onDismissRequest: () -> Unit, lessonsLDB: ViewModelLDB) {
                 }
                 ElevatedButton(
                     onClick = {
-                        lessonsLDB.insertDay(2, "History")
+                        lessonsLDB.updateDay(1, lessonName)
                         onDismissRequest()
                     }
                 ) {

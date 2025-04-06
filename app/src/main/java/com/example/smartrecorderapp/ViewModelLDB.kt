@@ -12,9 +12,16 @@ import kotlinx.coroutines.launch
 class ViewModelLDB(application: Application): AndroidViewModel(application) {
     private val daysDaoModel = LessonsDB.getLessonDB(application)?.daysDao()
     private val allDays = daysDaoModel?.getDays()
+
     fun insertDay(id: Int, lessonString: String) {
         viewModelScope.launch(Dispatchers.IO) {
             daysDaoModel?.insertDay(Day(id = id, lessons = lessonString))
+        }
+    }
+
+    fun updateDay(id: Int, lessonString: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            daysDaoModel?.updateDay(Day(id = id, lessons = lessonString))
         }
     }
 

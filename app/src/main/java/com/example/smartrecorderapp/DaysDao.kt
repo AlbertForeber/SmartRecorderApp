@@ -11,6 +11,8 @@ import androidx.room.Update
 interface DaysDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertDay(day: Day)
+    @Update
+    fun updateDay(id: Day)
     @Query("SELECT * FROM Day WHERE id == :id")
     suspend fun getDay(id: Int): Day
     @Query("DELETE FROM Day WHERE id == :id")
