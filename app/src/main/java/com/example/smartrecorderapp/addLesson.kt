@@ -41,7 +41,7 @@ import androidx.compose.ui.window.Dialog
 import kotlin.math.sin
 
 @Composable
-fun AddLesson(onDismissRequest: () -> Unit, lessonsLDB: ViewModelLDB) {
+fun AddLesson(onDismissRequest: () -> Unit, lessonsLDB: ViewModelLDB, dayId: Int) {
     var lessonName by remember { mutableStateOf("") }
     var lessonIndex by remember { mutableStateOf("1") }
     var isDropped by remember { mutableStateOf(false) }
@@ -154,7 +154,7 @@ fun AddLesson(onDismissRequest: () -> Unit, lessonsLDB: ViewModelLDB) {
                 }
                 ElevatedButton(
                     onClick = {
-                        lessonsLDB.updateDay(1, lessonName)
+                        lessonsLDB.insertDay(dayId, lessonIndex.toInt(), lessonName)
                         onDismissRequest()
                     }
                 ) {

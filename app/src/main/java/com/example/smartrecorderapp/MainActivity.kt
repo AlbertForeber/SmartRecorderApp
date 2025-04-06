@@ -1,5 +1,6 @@
 package com.example.smartrecorderapp
 
+import android.annotation.SuppressLint
 import android.content.res.Resources.Theme
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -36,6 +37,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,12 +47,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.example.smartrecorderapp.ui.theme.SmartRecorderAppTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
 
 class MainActivity : ComponentActivity() {
     private lateinit var lessonLDB: ViewModelLDB
 
+    @SuppressLint("MutableCollectionMutableState")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,13 +66,13 @@ class MainActivity : ComponentActivity() {
                 var isSelectingDate by remember { mutableStateOf(false) }
                 var isDialog by remember { mutableStateOf(false) }
                 var selectedDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
-                val context = LocalContext.current
+                var dateParams = formatDate(selectedDate)
                 val provider = ViewModelProvider(this)
+                val coroutineScope = rememberCoroutineScope()
                 //
-                var lesson by remember { mutableStateOf("") }
+                var lesson by remember { mutableStateOf(mutableListOf<Day>()) }
                 //
                 lessonLDB = provider[ViewModelLDB::class]
-                val day = lessonLDB.getDays()?.observeAsState(initial = listOf())
                 Scaffold(
                     topBar = {
                         CenterAlignedTopAppBar(
@@ -80,11 +86,11 @@ class MainActivity : ComponentActivity() {
                                     verticalArrangement = Arrangement.spacedBy(5.dp)
                                 ) {
                                     Text(
-                                        formatDate(selectedDate)[0],
+                                        dateParams[0],
                                         style = MaterialTheme.typography.titleLarge,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
-                                    Text("${formatDate(selectedDate)[1]} · 7 неделя",
+                                    Text("${dateParams[2]} · 7 неделя",
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.onSurface)
                                 }
@@ -109,15 +115,30 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
 
                     // Получение нового списка при добавлении дня
-                    LaunchedEffect(isDialog) {
-                        lessonLDB.getDay(1, lessons = { lesson = it }
-                        )
+//                    LaunchedEffect(isDialog, isSelectingDate) {
+//                        lessonLDB.getDay(dateParams[1].toInt(), lessons = { lesson = it.toMutableList() }
+//                        )
+//                    }
+                    LaunchedEffect(Unit) {
+                        lessonLDB.getDay(dateParams[1].toInt(), lessons = { lesson = it.toMutableList() } )
                     }
 
-                    var lessonList = lesson.split('/')
-                    LazyColumn(modifier = Modifier.padding(innerPadding)) {
-                        items(count = lessonList.size) {
-                            Text(lessonList[it])
+
+                    LazyColumn(
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        items(count = lesson.size) { it ->
+                            LessonCard(
+                                lesson[it].lessons,
+                                lessonId = lesson[it].lessonId,
+                                innerPadding,
+                                onDelete = {
+                                    lessonLDB.deleteLessonById(lesson[it].id, lesson[it].lessonId)
+                                    coroutineScope.launch {
+                                        lessonLDB.getDay(dateParams[1].toInt(), lessons = { lesson = it.toMutableList() })
+                                    }
+                                }
+                            )
                         }
                     }
 
@@ -125,8 +146,12 @@ class MainActivity : ComponentActivity() {
                         AddLesson(
                             {
                                 isDialog = false
+                                coroutineScope.launch {
+                                    lessonLDB.getDay(dateParams[1].toInt(), lessons = { lesson = it.toMutableList() })
+                                }
                             },
-                            lessonLDB
+                            lessonLDB,
+                            dateParams[1].toInt(),
                         )
                     }
                     if (isSelectingDate) {
@@ -134,9 +159,17 @@ class MainActivity : ComponentActivity() {
                             onConfirm = { date ->
                                 if (date != null) {
                                     selectedDate = date
+
+                                    coroutineScope.launch {
+                                        lessonLDB.getDay(
+                                            formatDate(date)[1].toInt(),
+                                            lessons = { lesson = it.toMutableList() })
+                                    }
                                 }
                             },
-                            onDismiss = { isSelectingDate = false }
+                            onDismiss = {
+                                isSelectingDate = false
+                            }
                         )
                     }
                 }

@@ -11,42 +11,30 @@ import kotlinx.coroutines.launch
 
 class ViewModelLDB(application: Application): AndroidViewModel(application) {
     private val daysDaoModel = LessonsDB.getLessonDB(application)?.daysDao()
-    private val allDays = daysDaoModel?.getDays()
 
-    fun insertDay(id: Int, lessonString: String) {
+    fun insertDay(id: Int, lessonId: Int, lessonString: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            daysDaoModel?.insertDay(Day(id = id, lessons = lessonString))
+            daysDaoModel?.insertDay(Day(id = id, lessonId = lessonId, lessons = lessonString))
         }
     }
 
-    fun updateDay(id: Int, lessonString: String) {
+    fun updateDay(id: Int, lessonId: Int, lessonString: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            daysDaoModel?.updateDay(Day(id = id, lessons = lessonString))
+            daysDaoModel?.updateDay(Day(id = id, lessonId = lessonId, lessons = lessonString))
         }
     }
 
-    fun deleteDayById(id: Int) {
+    fun deleteLessonById(id: Int, lessonId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            daysDaoModel?.deleteDayByID(id)
+            daysDaoModel?.deleteLessonByID(id, lessonId)
+            Log.e("RemoveDB", "Received!")
         }
     }
-
-    fun updateDay(id: Int, string: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            daysDaoModel?.updateDay(Day(id, string))
-        }
-    }
-
-    fun getDays(): LiveData<List<Day>>? {
-        return allDays
-    }
-
-    fun getDay(id: Int, lessons: (lessons: String) -> Unit) {
-        var day: Day? = null
+    fun getDay(id: Int, lessons: (lessons: List<Day>) -> Unit) {
+        var day: List<Day>?
         viewModelScope.launch(Dispatchers.IO) {
             day = daysDaoModel?.getDay(id)
-            day?.lessons?.let { Log.e("DB_Work", it) }
-            day?.lessons?.let { lessons(it) }
+            day?.let { lessons(it) }
         }
     }
 }

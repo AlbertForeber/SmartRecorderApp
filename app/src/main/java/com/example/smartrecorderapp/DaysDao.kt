@@ -14,11 +14,7 @@ interface DaysDao {
     @Update
     fun updateDay(id: Day)
     @Query("SELECT * FROM Day WHERE id == :id")
-    suspend fun getDay(id: Int): Day
-    @Query("DELETE FROM Day WHERE id == :id")
-    fun deleteDayByID(id: Int)
-    @Query ("SELECT * FROM Day")
-    fun getDays(): LiveData<List<Day>>
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateDay(day: Day)
+    suspend fun getDay(id: Int): List<Day>
+    @Query("DELETE FROM Day WHERE id == :id AND lesson_id == :lessonId")
+    fun deleteLessonByID(id: Int, lessonId: Int)
 }

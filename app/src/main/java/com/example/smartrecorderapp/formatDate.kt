@@ -6,7 +6,7 @@ import java.util.Date
 import java.util.Locale
 
 fun formatDate(milliDate: Long): List<String> {
-    val dateParams = mutableListOf("", "")
+    val dateParams = mutableListOf("", "", "")
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = milliDate
     dateParams[0] = when (calendar.get(Calendar.DAY_OF_WEEK)) {
@@ -20,8 +20,18 @@ fun formatDate(milliDate: Long): List<String> {
         else -> ""
     }
 
-//    dateParams[1] = "${calendar.get(Calendar.DATE)}.${calendar.get(Calendar.MONTH) + 1}.${calendar.get(Calendar.YEAR)}"
+    dateParams[1] = when (calendar.get(Calendar.DAY_OF_WEEK)) {
+        1 -> "7"
+        2 -> "1"
+        3 -> "2"
+        4 -> "3"
+        5 -> "4"
+        6 -> "5"
+        7 -> "6"
+        else -> ""
+    }
+
     val formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-    dateParams[1] = formatter.format(Date(milliDate))
+    dateParams[2] = formatter.format(Date(milliDate))
     return dateParams
 }

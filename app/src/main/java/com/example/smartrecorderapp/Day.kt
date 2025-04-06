@@ -1,12 +1,14 @@
 package com.example.smartrecorderapp
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 
-@Entity(tableName = "day")
+@Entity(tableName = "day", primaryKeys = ["id", "lesson_id"])
 class Day(
-    @PrimaryKey
     val id: Int,
+    @ColumnInfo(name = "lesson_id")
+    val lessonId: Int,
     val lessons: String
 )
