@@ -180,16 +180,6 @@ class MainActivity : ComponentActivity() {
 
                         composable(
                             "auth",
-                            enterTransition = {
-                                fadeIn(
-                                    animationSpec = tween(
-                                        150, easing = LinearEasing
-                                    )
-                                ) + slideIntoContainer(
-                                    animationSpec = tween(150, easing = EaseIn),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.End
-                                )
-                            },
                             exitTransition = {
                                 fadeOut(
                                     animationSpec = tween(
@@ -200,6 +190,7 @@ class MainActivity : ComponentActivity() {
                                     towards = AnimatedContentTransitionScope.SlideDirection.Start
                                 )
                             }
+
                         ) {
                             AuthScreen(auth, navController, { currentUser = it }, this@MainActivity)
                         }
