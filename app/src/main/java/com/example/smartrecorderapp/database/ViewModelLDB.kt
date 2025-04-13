@@ -24,7 +24,6 @@ class ViewModelLDB(application: Application): AndroidViewModel(application) {
         rememberData[1] = lessonID.toString()
         rememberData[2] = lessonName
     }
-
     fun getRememberedData(): MutableList<String> {
         return rememberData
     }

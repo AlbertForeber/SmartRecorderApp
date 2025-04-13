@@ -55,11 +55,14 @@ import com.example.smartrecorderapp.database.Day
 import com.example.smartrecorderapp.database.ViewModelLDB
 import com.example.smartrecorderapp.date_functional.SelectData
 import com.example.smartrecorderapp.date_functional.formatDate
+import com.example.smartrecorderapp.screens.AuthScreen
 import com.example.smartrecorderapp.screens.LessonScreen
 import com.example.smartrecorderapp.screens.MainScreen
 import com.example.smartrecorderapp.topbars.LessonScreenTopBar
 import com.example.smartrecorderapp.topbars.MainScreenTopBar
 import com.example.smartrecorderapp.ui.theme.SmartRecorderAppTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -75,6 +78,13 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val navBackStackEntry = navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry.value?.destination?.route
+                val auth = Firebase.auth
+                var home = "home"
+
+                var currentUser = auth.currentUser
+                if (currentUser == null ) {
+                    home = "auth"
+                }
 
                 val provider = ViewModelProvider(this)
                 lessonLDB = provider[ViewModelLDB::class]
@@ -96,7 +106,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             ) + shrinkHorizontally()
                         ) {
-                            MainScreenTopBar(lessonLDB)
+                            MainScreenTopBar(lessonLDB, auth, { currentUser = it }, navController)
                         }
                         AnimatedVisibility(
                             currentRoute == "lesson",
@@ -135,7 +145,7 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "home",
+                        startDestination = home,
                     ) {
                         composable(
                             "home",
@@ -166,6 +176,32 @@ class MainActivity : ComponentActivity() {
 
                         composable("lesson") {
                             LessonScreen(navController, lessonLDB, innerPadding)
+                        }
+
+                        composable(
+                            "auth",
+                            enterTransition = {
+                                fadeIn(
+                                    animationSpec = tween(
+                                        150, easing = LinearEasing
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(150, easing = EaseIn),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                                )
+                            },
+                            exitTransition = {
+                                fadeOut(
+                                    animationSpec = tween(
+                                        150, easing = LinearEasing
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(150, easing = EaseOut),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                )
+                            }
+                        ) {
+                            AuthScreen(auth, navController, { currentUser = it }, this@MainActivity)
                         }
                     }
                 }

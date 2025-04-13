@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "186249201699",
+    "project_id": "smartrecorderapp-1ba0a",
+    "storage_bucket": "smartrecorderapp-1ba0a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186249201699:android:b420e346b59b02ebd8c996",
+        "android_client_info": {
+          "package_name": "com.example.smartrecorderapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "186249201699-fm5d5qn0elmk25o4rca2fhdljqe42ige.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.smartrecorderapp",
+            "certificate_hash": "86bb6210ed4ddbe3bada36c56dc7bfd85b6ede27"
+          }
+        },
+        {
+          "client_id": "186249201699-t6r4se30r5n6rkrarccb4leuan6pjo38.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5-mjCozFEG9PJ17qw5jZlgDzGgrjsZwU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "186249201699-t6r4se30r5n6rkrarccb4leuan6pjo38.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
