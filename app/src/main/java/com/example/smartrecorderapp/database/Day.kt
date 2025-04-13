@@ -1,9 +1,7 @@
-package com.example.smartrecorderapp
+package com.example.smartrecorderapp.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
 
 @Entity(tableName = "day", primaryKeys = ["id", "lesson_id"])
 class Day(

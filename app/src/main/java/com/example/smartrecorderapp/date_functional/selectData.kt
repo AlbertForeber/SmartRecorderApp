@@ -1,14 +1,12 @@
-package com.example.smartrecorderapp
+package com.example.smartrecorderapp.date_functional
 
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerColors
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.dimensionResource
 
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 fun LessonCard(lessonString: String,
                lessonId: Int,
                padding: PaddingValues,
+               onClick: () -> Unit,
                onDelete: () -> Unit
 ) {
     val lessonInfo = lessonString.split("_").toMutableList()
@@ -61,7 +62,8 @@ fun LessonCard(lessonString: String,
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 6.dp
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onClick
         ) {
             Column(
                 modifier = Modifier.padding(15.dp),

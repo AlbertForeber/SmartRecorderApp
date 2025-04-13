@@ -1,4 +1,4 @@
-package com.example.smartrecorderapp
+package com.example.smartrecorderapp.database
 
 import android.content.Context
 import androidx.room.Database

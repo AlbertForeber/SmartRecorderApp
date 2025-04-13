@@ -1,12 +1,11 @@
-package com.example.smartrecorderapp
+package com.example.smartrecorderapp.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+
 @Dao
 interface DaysDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)

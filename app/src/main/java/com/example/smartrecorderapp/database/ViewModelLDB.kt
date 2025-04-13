@@ -1,16 +1,33 @@
-package com.example.smartrecorderapp
+package com.example.smartrecorderapp.database
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class ViewModelLDB(application: Application): AndroidViewModel(application) {
     private val daysDaoModel = LessonsDB.getLessonDB(application)?.daysDao()
+    private var rememberData = mutableListOf("", "", "")
+    var isSelectingDate = mutableStateOf(false)
+    var isDialog = mutableStateOf(false)
+    var selectedData = mutableLongStateOf(System.currentTimeMillis())
+
+    fun setRememberedData(dataMillis: Long, lessonID: Int, lessonName: String) {
+        rememberData[0] = dataMillis.toString()
+        rememberData[1] = lessonID.toString()
+        rememberData[2] = lessonName
+    }
+
+    fun getRememberedData(): MutableList<String> {
+        return rememberData
+    }
 
     fun insertDay(id: Int, lessonId: Int, lessonString: String) {
         viewModelScope.launch(Dispatchers.IO) {

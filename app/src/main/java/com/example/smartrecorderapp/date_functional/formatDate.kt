@@ -1,4 +1,4 @@
-package com.example.smartrecorderapp
+package com.example.smartrecorderapp.date_functional
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
