@@ -175,11 +175,12 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("lesson") {
-                            LessonScreen(navController, lessonLDB, innerPadding)
+                            LessonScreen(navController, lessonLDB, innerPadding, this@MainActivity)
                         }
 
                         composable(
                             "auth",
+
                             exitTransition = {
                                 fadeOut(
                                     animationSpec = tween(

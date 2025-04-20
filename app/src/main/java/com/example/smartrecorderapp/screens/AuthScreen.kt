@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,11 +27,15 @@ import androidx.navigation.NavOptions
 import com.example.smartrecorderapp.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AuthScreen(auth: FirebaseAuth, navController: NavHostController, returnAuth: ( FirebaseUser? ) -> Unit, activity: MainActivity) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -86,15 +91,19 @@ fun AuthScreen(auth: FirebaseAuth, navController: NavHostController, returnAuth:
                         if (email.isNotEmpty() && password.isNotEmpty()) {
                             auth.createUserWithEmailAndPassword(email, password)
                                 .addOnCompleteListener(activity) { task ->
-                                    if (task.isSuccessful) {
-                                        returnAuth( auth.currentUser )
-                                        navController.navigate("home") {
-                                            popUpTo("auth") { inclusive = true }
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        if (task.isSuccessful) {
+                                            returnAuth(auth.currentUser)
+                                            delay(100)
+                                            navController.navigate("home") {
+                                                popUpTo("auth") { inclusive = true }
+                                            }
                                         }
                                     }
                                 }
                         }
                     }
+
                 ) {
                     Text("Регистрация")
                 }

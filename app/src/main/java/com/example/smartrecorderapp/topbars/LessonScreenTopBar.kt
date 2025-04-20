@@ -39,7 +39,7 @@ fun LessonScreenTopBar(navController: NavHostController, lessonLDB: ViewModelLDB
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    "${formatDate(debugData[0].toLong())} · 7 неделя",
+                    "${formatDate(debugData[0].toLong())[0]} · 7 неделя",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
