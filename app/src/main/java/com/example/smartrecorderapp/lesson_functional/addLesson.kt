@@ -1,4 +1,4 @@
-package com.example.smartrecorderapp
+package com.example.smartrecorderapp.lesson_functional
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

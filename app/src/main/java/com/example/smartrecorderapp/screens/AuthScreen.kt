@@ -32,7 +32,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun AuthScreen(auth: FirebaseAuth, navController: NavHostController, returnAuth: ( FirebaseUser? ) -> Unit, activity: MainActivity) {
+fun AuthScreen(
+    auth: FirebaseAuth,
+    navController: NavHostController,
+    returnAuth: ( FirebaseUser? ) -> Unit,
+    activity: MainActivity
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
@@ -71,6 +76,7 @@ fun AuthScreen(auth: FirebaseAuth, navController: NavHostController, returnAuth:
             ) {
                 ElevatedButton(
                     onClick = {
+                        // Перенести во вью модель
                         if (email.isNotEmpty() && password.isNotEmpty()) {
                             auth.signInWithEmailAndPassword(email, password)
                                 .addOnCompleteListener(activity) { task ->
