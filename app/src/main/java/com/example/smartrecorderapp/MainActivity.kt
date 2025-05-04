@@ -139,6 +139,7 @@ class MainActivity : ComponentActivity() {
                                 containerColor = MaterialTheme.colorScheme.surface,
                                 onClick = {
                                     lessonLDB.isDialog.value = true
+
                                 }
                             ) {
                                 Icon(
@@ -201,7 +202,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                         ) {
-                            AuthScreen(auth, navController, { currentUser = it }, this@MainActivity)
+                            AuthScreen( auth, navController, { currentUser = it }, this@MainActivity)
                         }
                     }
                 }

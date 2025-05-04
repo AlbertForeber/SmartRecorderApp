@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.util.lruCache
+import androidx.hilt.navigation.compose.hiltViewModel
 
 import androidx.navigation.NavHostController
 import com.example.smartrecorderapp.MainActivity
@@ -46,7 +47,6 @@ fun LessonScreen(
     innerPadding: PaddingValues,
     context: Context
 ) {
-
     val recorder by lazy { AndroidAudioRecorder(context) }
     val player by lazy { AndroidAudioPlayer(context) }
     var audioFile: File? = null
