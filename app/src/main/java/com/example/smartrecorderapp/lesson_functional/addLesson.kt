@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.smartrecorderapp.database.ViewModelLDB
+import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 
 @Composable
 fun AddLesson(onDismissRequest: () -> Unit, lessonsLDB: ViewModelLDB, dayId: Int) {

@@ -3,7 +3,7 @@ package com.example.smartrecorderapp.screens
 import com.example.smartrecorderapp.lesson_functional.AddLesson
 import com.example.smartrecorderapp.lesson_functional.LessonCard
 import com.example.smartrecorderapp.database.Day
-import com.example.smartrecorderapp.database.ViewModelLDB
+import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 import com.example.smartrecorderapp.date_functional.SelectData
 import com.example.smartrecorderapp.date_functional.formatDate
 import android.annotation.SuppressLint

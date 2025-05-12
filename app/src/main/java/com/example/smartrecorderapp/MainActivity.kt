@@ -54,7 +54,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.smartrecorderapp.database.Day
-import com.example.smartrecorderapp.database.ViewModelLDB
+import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 import com.example.smartrecorderapp.date_functional.SelectData
 import com.example.smartrecorderapp.date_functional.formatDate
 import com.example.smartrecorderapp.screens.AuthScreen
@@ -66,6 +66,9 @@ import com.example.smartrecorderapp.ui.theme.SmartRecorderAppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.vertexai.type.content
+import com.google.firebase.vertexai.vertexAI
+import dagger.Provides
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -74,7 +77,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val lessonLDB: ViewModelLDB by viewModels()
-    private lateinit var auth: FirebaseAuth
+    @Inject lateinit var auth: FirebaseAuth
 
     @SuppressLint("MutableCollectionMutableState")
     @OptIn(ExperimentalMaterial3Api::class)
@@ -83,8 +86,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SmartRecorderAppTheme {
-                auth = Firebase.auth
-
                 val navController = rememberNavController()
                 val navBackStackEntry = navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry.value?.destination?.route
@@ -202,7 +203,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                         ) {
-                            AuthScreen( auth, navController, { currentUser = it }, this@MainActivity)
+                            AuthScreen( navController ) { currentUser = it }
                         }
                     }
                 }

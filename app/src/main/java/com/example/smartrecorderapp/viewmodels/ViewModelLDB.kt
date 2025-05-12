@@ -1,17 +1,13 @@
-package com.example.smartrecorderapp.database
+package com.example.smartrecorderapp.viewmodels
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.smartrecorderapp.MainActivity
+import com.example.smartrecorderapp.database.Day
+import com.example.smartrecorderapp.database.LessonsDB
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -22,7 +18,7 @@ import kotlinx.coroutines.launch
 class ViewModelLDB @Inject constructor(
     @ApplicationContext private val application: Context
 ): ViewModel() {
-    private val daysDaoModel = LessonsDB.getLessonDB(application)?.daysDao()
+    private val daysDaoModel = LessonsDB.Companion.getLessonDB(application)?.daysDao()
     private var rememberData = mutableListOf("", "", "")
     var isSelectingDate = mutableStateOf(false)
     var isDialog = mutableStateOf(false)
