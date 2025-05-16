@@ -3,6 +3,7 @@ package com.example.smartrecorderapp.screens
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,8 +41,11 @@ import com.example.smartrecorderapp.MainActivity
 import com.example.smartrecorderapp.R
 import com.example.smartrecorderapp.audio_processing.AndroidAudioPlayer
 import com.example.smartrecorderapp.audio_processing.AndroidAudioRecorder
+import com.example.smartrecorderapp.viewmodels.FirebaseDBViewModel
+import com.example.smartrecorderapp.viewmodels.FirebaseStorageViewModel
 import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.vertexai.type.Content
 import com.google.firebase.vertexai.type.content
 import com.google.firebase.vertexai.vertexAI
@@ -57,24 +63,57 @@ fun LessonScreen(
     innerPadding: PaddingValues,
     context: Context
 ) {
+    //
     val recorder by lazy { AndroidAudioRecorder(context) }
     val player by lazy { AndroidAudioPlayer(context) }
-    var audioFile: File? = null
-
-    var debugData = lessonLDB.getRememberedData()
+    DisposableEffect(Unit) {
+        onDispose {
+            Log.e("DEBUGGE", "Left lesson screen")
+            recorder.stop()
+            player.stop()
+        }
+    }
+    //
+    val debugData = lessonLDB.getRememberedData()
+    ////
+    val coroutineScope = rememberCoroutineScope()
+    var text by remember { mutableStateOf("") }
+    ///
     var isRecordAllowed by remember {
         mutableStateOf(checkPermissionFor(context, Manifest.permission.RECORD_AUDIO) )
     }
-    ////
-    val coroutineScope = rememberCoroutineScope()
-    val generativeModel = Firebase.vertexAI.generativeModel("gemini-2.0-flash")
-    var text by remember { mutableStateOf("") }
-    ///
-    var getAudioPermission = rememberLauncherForActivityResult( contract = ActivityResultContracts.RequestPermission() ) {
+    val getAudioPermission = rememberLauncherForActivityResult( contract = ActivityResultContracts.RequestPermission() ) {
         isRecordAllowed = it
     }
+    //
+    val firebaseDb: FirebaseDBViewModel = hiltViewModel()
 
-    Column(
+    fun updateText() {
+        firebaseDb.getLesson(
+            debugData[3],
+            debugData[1].toLong()
+        ) {
+            if (it != null) {
+                text = it
+            }
+        }
+    }
+
+    updateText()
+
+    val firebaseStorage: FirebaseStorageViewModel = hiltViewModel()
+    //
+    val audioFile = File(context.cacheDir, "audio_${debugData[3]}_${debugData[1]}.mp3")
+    if ( !audioFile.exists() ) {
+        firebaseStorage.getLesson(
+            debugData[3],
+            debugData[1].toLong(),
+            audioFile
+        )
+    }
+    else Log.i("DEBUGGE", "File found in cache")
+
+        Column(
         Modifier
             .padding(innerPadding)
             .fillMaxSize()
@@ -85,10 +124,7 @@ fun LessonScreen(
                     getAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
                 }
                 else {
-                    File(context.cacheDir, "audio.mp3").also {
-                        audioFile = it
-                        recorder.start( audioFile )
-                    }
+                    recorder.start( audioFile )
 
                 }
             },
@@ -103,23 +139,16 @@ fun LessonScreen(
         IconButton(
             onClick = {
                 recorder.stop()
-                coroutineScope.launch( Dispatchers.IO ) {
-                    val prompt = content {
-                        text("Транскрибируй это аудио")
-                        inlineData(
-                            audioFile?.readBytes()!!,
-                            mimeType = "audio/mp3"
-                        )
-                    }
-                    
-                    val response =
-                        generativeModel.generateContent(prompt)
+                firebaseDb.addLesson(
+                    debugData[3],
+                    debugData[1].toLong(),
+                    audioFile
+                ) { updateText() }
 
-                    withContext( Dispatchers.Main ) {
-                        text = response.text.toString()
-                    }
-
-                }
+                firebaseStorage.addLesson(
+                    debugData[3],
+                    debugData[1].toLong(),
+                    audioFile )
             },
         ) {
             Icon(
@@ -130,12 +159,34 @@ fun LessonScreen(
         }
         IconButton(
             onClick = {
-                player.playFile(audioFile!!)
+                if ( audioFile.exists() ) {
+                    player.playFile( audioFile )
+                }
+                else Log.e("DEBUGGE", "File does not exist")
             },
         ) {
             Icon(
                 Icons.Filled.PlayArrow,
-                "Кнопка воспроизве записи",
+                "Кнопка воспроизведения записи",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        IconButton(
+            onClick = {
+                audioFile.delete()
+                firebaseDb.removeLesson(
+                    debugData[3],
+                    debugData[1].toLong()
+                )
+                firebaseStorage.removeLesson(
+                    debugData[3],
+                    debugData[1].toLong()
+                )
+            },
+        ) {
+            Icon(
+                Icons.Filled.Delete,
+                "Кнопка удаления записи",
                 tint = MaterialTheme.colorScheme.primary
             )
         }

@@ -31,7 +31,7 @@ fun MainScreenTopBar(
     returnAuth: (FirebaseUser? ) -> Unit,
     navController: NavHostController
 ) {
-    var dateParams = formatDate( lessonLDB.selectedData.value )
+    val dateParams = formatDate( lessonLDB.selectedData.longValue )
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -55,7 +55,7 @@ fun MainScreenTopBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    auth.signOut()
+                    auth.signOut() // TODO перенести в AuthViewModel
                     returnAuth( auth.currentUser )
                     navController.navigate("auth") {
                         popUpTo("home") { inclusive = true }

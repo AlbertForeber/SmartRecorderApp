@@ -1,76 +1,64 @@
 package com.example.smartrecorderapp.viewmodels
 
-import android.util.Log
+import android.content.Context
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.query
+import android.util.Log
+import com.example.smartrecorderapp.audio_processing.AndroidAudioPlayer
 import com.example.smartrecorderapp.database.LessonFDB
-import com.example.smartrecorderapp.database.LessonsDB
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.vertexai.type.content
 import com.google.firebase.vertexai.vertexAI
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 
 @HiltViewModel
-class FirebaseDBViewModel @Inject constructor(
-    firebaseDatabase: FirebaseDatabase,
-    private val auth: FirebaseAuth
+class FirebaseStorageViewModel @Inject constructor(
+    firebaseStorage: FirebaseStorage,
+    private val auth: FirebaseAuth,
+    @ApplicationContext private val context: Context
 ) : ViewModel( ) {
+    private val reference = firebaseStorage.reference
     private lateinit var currentProcess: Job
-    private val reference = firebaseDatabase.reference
-    fun addLesson( dateInMillis: String, lessonId: Long, audioFile: File, onSuccess: () -> Unit) {
+    fun addLesson( dateInMillis: String, lessonId: Long, file: File) {
         currentProcess = viewModelScope.launch( Dispatchers.IO ) {
-            val generativeModel = Firebase.vertexAI.generativeModel("gemini-2.0-flash")
-            val prompt = content {
-                text("Транскрибируй это аудио")
-                inlineData(
-                    audioFile.readBytes(),
-                    mimeType = "audio/mp3"
-                )
-            }
-            val response =
-                generativeModel.generateContent(prompt)
+
             reference
                 .child("users")
                 .child("${auth.currentUser?.uid}")
                 .child(dateInMillis)
                 .child("$lessonId")
-                .setValue(response.text)
-                .addOnSuccessListener {
-                    onSuccess()
-                }
+                .putFile(file.toUri())
         }
     }
 
-    fun getLesson( dateInMillis: String, lessonId: Long, callback: ( String? ) -> Unit ) {
-        currentProcess = viewModelScope.launch( Dispatchers.IO ) {
+    fun getLesson( dateInMillis: String, lessonId: Long, destinationFile: File ) {
+        currentProcess = viewModelScope.launch(Dispatchers.IO) {
+            val file: File = destinationFile
             reference
                 .child("users")
                 .child("${auth.currentUser?.uid}")
                 .child(dateInMillis)
                 .child("$lessonId")
-                .get()
+                .getFile(file)
                 .addOnSuccessListener {
-                    callback(it.value.toString())
+                    Log.i("DEBUGGE", "Successfully got file")
                 }
-                .addOnFailureListener {
-                    callback( null )
+                .addOnFailureListener{
+                    Log.i("DEBUGGE", "Error while getting file. Getting in users/${auth.currentUser?.uid}/$dateInMillis/$lessonId")
                 }
+
         }
     }
-
 
     fun removeLesson( dateInMillis: String, lessonId: Long ) {
         currentProcess = viewModelScope.launch( Dispatchers.IO ) {
@@ -79,13 +67,12 @@ class FirebaseDBViewModel @Inject constructor(
                 .child("${auth.currentUser?.uid}")
                 .child(dateInMillis)
                 .child("$lessonId")
-                .removeValue()
+                .delete()
         }
     }
-
     override fun onCleared() {
         super.onCleared()
-        Log.i("DEBUGGE", "DB process canceled")
+        Log.i("DEBUGGE", "Storage process canceled")
         currentProcess.cancel()
     }
 }

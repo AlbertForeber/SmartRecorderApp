@@ -12,7 +12,7 @@ class AndroidAudioPlayer(
     override fun playFile(file: File) {
         MediaPlayer.create(context, file.toUri()).apply {
             player = this
-            player?.setVolume(5f, 5f)
+            player?.setVolume(100f, 100f)
             start()
         }
     }

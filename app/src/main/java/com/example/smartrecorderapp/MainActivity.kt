@@ -180,7 +180,6 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         ) {
-
                             MainScreen(navController, lessonLDB, innerPadding)
                         }
 

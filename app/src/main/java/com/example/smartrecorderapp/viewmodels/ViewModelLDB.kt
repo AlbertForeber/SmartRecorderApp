@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smartrecorderapp.database.Day
 import com.example.smartrecorderapp.database.LessonsDB
+import com.example.smartrecorderapp.date_functional.formatDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -19,7 +20,7 @@ class ViewModelLDB @Inject constructor(
     @ApplicationContext private val application: Context
 ): ViewModel() {
     private val daysDaoModel = LessonsDB.Companion.getLessonDB(application)?.daysDao()
-    private var rememberData = mutableListOf("", "", "")
+    private var rememberData = mutableListOf("", "", "", "")
     var isSelectingDate = mutableStateOf(false)
     var isDialog = mutableStateOf(false)
     var selectedData = mutableLongStateOf(System.currentTimeMillis())
@@ -28,6 +29,7 @@ class ViewModelLDB @Inject constructor(
         rememberData[0] = dataMillis.toString()
         rememberData[1] = lessonID.toString()
         rememberData[2] = lessonName
+        rememberData[3] = formatDate(dataMillis)[2].replace('.', '-')
     }
     fun getRememberedData(): MutableList<String> {
         return rememberData

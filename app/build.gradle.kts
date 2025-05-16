@@ -46,6 +46,9 @@ android {
 dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.lifecycle.process)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.material3)
