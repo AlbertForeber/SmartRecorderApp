@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import com.google.firebase.vertexai.type.content
 import com.google.firebase.vertexai.vertexAI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -104,14 +106,17 @@ fun LessonScreen(
     val firebaseStorage: FirebaseStorageViewModel = hiltViewModel()
     //
     val audioFile = File(context.cacheDir, "audio_${debugData[3]}_${debugData[1]}.mp3")
-    if ( !audioFile.exists() ) {
+
+    LaunchedEffect ( Unit ) {
+        Log.i("DEBUGGE", "detected_1")
         firebaseStorage.getLesson(
             debugData[3],
             debugData[1].toLong(),
             audioFile
         )
+        Log.i("DEBUGGE", "detected_2")
     }
-    else Log.i("DEBUGGE", "File found in cache")
+
 
         Column(
         Modifier

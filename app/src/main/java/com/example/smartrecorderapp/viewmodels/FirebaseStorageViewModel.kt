@@ -16,8 +16,11 @@ import com.google.firebase.vertexai.vertexAI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -41,7 +44,7 @@ class FirebaseStorageViewModel @Inject constructor(
         }
     }
 
-    fun getLesson( dateInMillis: String, lessonId: Long, destinationFile: File ) {
+    suspend fun getLesson(dateInMillis: String, lessonId: Long, destinationFile: File ) {
         currentProcess = viewModelScope.launch(Dispatchers.IO) {
             val file: File = destinationFile
             reference
@@ -58,6 +61,7 @@ class FirebaseStorageViewModel @Inject constructor(
                 }
 
         }
+        delay(1000L)
     }
 
     fun removeLesson( dateInMillis: String, lessonId: Long ) {

@@ -83,6 +83,10 @@ class FirebaseDBViewModel @Inject constructor(
         }
     }
 
+    suspend fun df ( )  {
+
+    }
+
     override fun onCleared() {
         super.onCleared()
         Log.i("DEBUGGE", "DB process canceled")
