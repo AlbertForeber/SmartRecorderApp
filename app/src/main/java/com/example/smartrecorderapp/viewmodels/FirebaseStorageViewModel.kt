@@ -33,8 +33,8 @@ class FirebaseStorageViewModel @Inject constructor(
     private val reference = firebaseStorage.reference
     private lateinit var currentProcess: Job
     fun addLesson( dateInMillis: String, lessonId: Long, file: File) {
-        currentProcess = viewModelScope.launch( Dispatchers.IO ) {
 
+        currentProcess = viewModelScope.launch( Dispatchers.IO ) {
             reference
                 .child("users")
                 .child("${auth.currentUser?.uid}")
@@ -76,6 +76,5 @@ class FirebaseStorageViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         Log.i("DEBUGGE", "Storage process canceled")
-        currentProcess.cancel()
     }
 }

@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -88,17 +90,9 @@ fun LessonScreen(
 
     val audioFile = File(context.cacheDir, "audio_${debugData[3]}_${debugData[1]}.mp3")
 
-    LaunchedEffect(Unit) {
-        firebaseDb.getLesson(debugData[3], debugData[1].toLong())
-        firebaseDb.dbState.collect { state ->
-            when ( state ) {
-                is RealtimeDBState.Error -> {}
-                is RealtimeDBState.Idle -> text = state.transcription!!
-                RealtimeDBState.InProgress -> {}
-                RealtimeDBState.None -> {}
-            }
-        }
-    }
+
+    firebaseDb.getLesson(debugData[3], debugData[1].toLong())
+    val dbState by firebaseDb.dbState.collectAsState()
     ///
     var isRecordAllowed by remember {
         mutableStateOf(checkPermissionFor(context, Manifest.permission.RECORD_AUDIO) )
@@ -196,9 +190,17 @@ fun LessonScreen(
             )
         }
         ///
-        Text(
-            text
-        )
+
+        when ( dbState ) {
+            is RealtimeDBState.Error -> { Toast.makeText(context, "${(dbState as RealtimeDBState.Error).errorMessage}",
+                Toast.LENGTH_SHORT).show()}
+            is RealtimeDBState.Idle -> Text((dbState as RealtimeDBState.Idle).transcription ?: "")
+            RealtimeDBState.InProgress -> {
+                CircularProgressIndicator()
+            }
+            RealtimeDBState.None -> {}
+        }
+
         ///
     }
 

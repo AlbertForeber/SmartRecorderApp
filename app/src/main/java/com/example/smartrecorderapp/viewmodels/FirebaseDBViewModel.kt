@@ -45,6 +45,7 @@ class FirebaseDBViewModel @Inject constructor(
                     audioFile: File? ) {
 
         viewModelScope.launch( Dispatchers.IO ) {
+            _dbState.value = RealtimeDBState.InProgress
             val result = realtimeDBRepository.addLesson(
                 RealtimeDBRequest(
                     date = date,
@@ -61,6 +62,7 @@ class FirebaseDBViewModel @Inject constructor(
     fun getLesson( date: String,
                    lessonId: Long ) {
         viewModelScope.launch( Dispatchers.IO ) {
+            _dbState.value = RealtimeDBState.InProgress
             val result = realtimeDBRepository.getLesson(
                 RealtimeDBRequest(
                     date = date,
@@ -70,7 +72,7 @@ class FirebaseDBViewModel @Inject constructor(
                 onSuccess = {
                     var result = it?.value.toString()
                     if ( result == "null" ) _dbState.value = RealtimeDBState.Error("File's not found")
-                    _dbState.value = RealtimeDBState.Idle( result )
+                    else _dbState.value = RealtimeDBState.Idle( result )
                             },
                 onFailure = { _dbState.value = RealtimeDBState.Error( it.message ) }
             )
@@ -81,6 +83,7 @@ class FirebaseDBViewModel @Inject constructor(
     fun removeLesson( date: String,
                       lessonId: Long ) {
         viewModelScope.launch(Dispatchers.IO) {
+            _dbState.value = RealtimeDBState.InProgress
             val result = realtimeDBRepository.removeLesson(
                 RealtimeDBRequest(
                     date = date,

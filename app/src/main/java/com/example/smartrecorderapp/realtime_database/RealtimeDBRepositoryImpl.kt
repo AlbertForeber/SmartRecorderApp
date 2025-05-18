@@ -32,9 +32,6 @@ class RealtimeDBRepositoryImpl @Inject constructor(
     override suspend fun getLesson( request: RealtimeDBRequest ): Result<DataSnapshot?> {
         return try {
             val reference = ref.getReference( request )
-            reference.get().addOnSuccessListener {
-                Log.i("DEBUGGE", "received ${it.value}")
-            }
             Result.success( reference.get().await() )
         }
         catch (e: Exception) {
