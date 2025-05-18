@@ -44,7 +44,7 @@ class FirebaseStorageViewModel @Inject constructor(
         }
     }
 
-    suspend fun getLesson(dateInMillis: String, lessonId: Long, destinationFile: File ) {
+    fun getLesson(dateInMillis: String, lessonId: Long, destinationFile: File ) {
         currentProcess = viewModelScope.launch(Dispatchers.IO) {
             val file: File = destinationFile
             reference
@@ -61,7 +61,6 @@ class FirebaseStorageViewModel @Inject constructor(
                 }
 
         }
-        delay(1000L)
     }
 
     fun removeLesson( dateInMillis: String, lessonId: Long ) {

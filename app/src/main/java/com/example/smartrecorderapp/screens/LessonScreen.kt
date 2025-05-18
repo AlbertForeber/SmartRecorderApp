@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +43,7 @@ import com.example.smartrecorderapp.MainActivity
 import com.example.smartrecorderapp.R
 import com.example.smartrecorderapp.audio_processing.AndroidAudioPlayer
 import com.example.smartrecorderapp.audio_processing.AndroidAudioRecorder
+import com.example.smartrecorderapp.realtime_database.RealtimeDBState
 import com.example.smartrecorderapp.viewmodels.FirebaseDBViewModel
 import com.example.smartrecorderapp.viewmodels.FirebaseStorageViewModel
 import com.example.smartrecorderapp.viewmodels.ViewModelLDB
@@ -63,11 +65,14 @@ fun LessonScreen(
     navController: NavHostController,
     lessonLDB: ViewModelLDB,
     innerPadding: PaddingValues,
-    context: Context
+    context: Context = LocalContext.current,
+    firebaseDb: FirebaseDBViewModel = hiltViewModel(),
+    firebaseStorage: FirebaseStorageViewModel = hiltViewModel()
 ) {
     //
     val recorder by lazy { AndroidAudioRecorder(context) }
     val player by lazy { AndroidAudioPlayer(context) }
+
     DisposableEffect(Unit) {
         onDispose {
             Log.e("DEBUGGE", "Left lesson screen")
@@ -80,6 +85,20 @@ fun LessonScreen(
     ////
     val coroutineScope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
+
+    val audioFile = File(context.cacheDir, "audio_${debugData[3]}_${debugData[1]}.mp3")
+
+    LaunchedEffect(Unit) {
+        firebaseDb.getLesson(debugData[3], debugData[1].toLong())
+        firebaseDb.dbState.collect { state ->
+            when ( state ) {
+                is RealtimeDBState.Error -> {}
+                is RealtimeDBState.Idle -> text = state.transcription!!
+                RealtimeDBState.InProgress -> {}
+                RealtimeDBState.None -> {}
+            }
+        }
+    }
     ///
     var isRecordAllowed by remember {
         mutableStateOf(checkPermissionFor(context, Manifest.permission.RECORD_AUDIO) )
@@ -88,37 +107,18 @@ fun LessonScreen(
         isRecordAllowed = it
     }
     //
-    val firebaseDb: FirebaseDBViewModel = hiltViewModel()
 
-    fun updateText() {
-        firebaseDb.getLesson(
-            debugData[3],
-            debugData[1].toLong()
-        ) {
-            if (it != null) {
-                text = it
-            }
-        }
-    }
-
-    updateText()
-
-    val firebaseStorage: FirebaseStorageViewModel = hiltViewModel()
-    //
-    val audioFile = File(context.cacheDir, "audio_${debugData[3]}_${debugData[1]}.mp3")
-
-    LaunchedEffect ( Unit ) {
-        Log.i("DEBUGGE", "detected_1")
+    if ( !audioFile.exists() ) {
         firebaseStorage.getLesson(
             debugData[3],
             debugData[1].toLong(),
             audioFile
         )
-        Log.i("DEBUGGE", "detected_2")
     }
+    else Log.i("DEBUGGE", "File's found in cache")
 
 
-        Column(
+    Column(
         Modifier
             .padding(innerPadding)
             .fillMaxSize()
@@ -148,7 +148,7 @@ fun LessonScreen(
                     debugData[3],
                     debugData[1].toLong(),
                     audioFile
-                ) { updateText() }
+                )
 
                 firebaseStorage.addLesson(
                     debugData[3],

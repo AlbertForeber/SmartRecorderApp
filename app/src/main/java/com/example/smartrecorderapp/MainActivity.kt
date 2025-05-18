@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -23,12 +24,15 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -38,6 +42,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,22 +52,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.smartrecorderapp.authentication.AuthState
 import com.example.smartrecorderapp.database.Day
 import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 import com.example.smartrecorderapp.date_functional.SelectData
 import com.example.smartrecorderapp.date_functional.formatDate
+import com.example.smartrecorderapp.navigation.NavComposable
 import com.example.smartrecorderapp.screens.AuthScreen
 import com.example.smartrecorderapp.screens.LessonScreen
 import com.example.smartrecorderapp.screens.MainScreen
 import com.example.smartrecorderapp.topbars.LessonScreenTopBar
 import com.example.smartrecorderapp.topbars.MainScreenTopBar
 import com.example.smartrecorderapp.ui.theme.SmartRecorderAppTheme
+import com.example.smartrecorderapp.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -76,7 +86,9 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val lessonLDB: ViewModelLDB by viewModels()
+
+
+
     @Inject lateinit var auth: FirebaseAuth
 
     @SuppressLint("MutableCollectionMutableState")
@@ -86,22 +98,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SmartRecorderAppTheme {
+                val lessonLDB: ViewModelLDB = hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
+                val authViewModel: AuthViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner)
+
                 val navController = rememberNavController()
                 val navBackStackEntry = navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry.value?.destination?.route
-                var home = "home"
 
                 var currentUser = auth.currentUser
-                if (currentUser == null ) {
-                    home = "auth"
-                }
 
+                val authState by authViewModel.authState.collectAsState()
 
                 Scaffold(
                     topBar = {
-//                        if (currentRoute == "home") {
-//                            MainScreenTopBar(lessonLDB)
-//                        }
                         AnimatedVisibility(
                             currentRoute == "home",
                             enter = fadeIn(
@@ -153,58 +162,26 @@ class MainActivity : ComponentActivity() {
                     }
 
                 ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = home,
-                    ) {
-                        composable(
-                            "home",
-                            enterTransition = {
-                                fadeIn(
-                                    animationSpec = tween(
-                                        150, easing = LinearEasing
-                                    )
-                                ) + slideIntoContainer(
-                                    animationSpec = tween(150, easing = EaseIn),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                                )
-                            },
-                            exitTransition = {
-                                fadeOut(
-                                    animationSpec = tween(
-                                        150, easing = LinearEasing
-                                    )
-                                ) + slideOutOfContainer(
-                                    animationSpec = tween(150, easing = EaseOut),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.End
-                                )
-                            }
-                        ) {
-                            MainScreen(navController, lessonLDB, innerPadding)
+                    val startDestination: String = when( authState ) {
+                        is AuthState.Loading -> "loading"
+                        is AuthState.Error -> "auth"
+                        is AuthState.Idle -> "auth"
+                        is AuthState.LoggedIn -> "main"
+                    }
+
+
+                    when (startDestination) {
+                        "main", "auth" -> {
+                            NavComposable(innerPadding, navController, startDestination)
                         }
-
-                        composable("lesson") {
-                            LessonScreen(navController, lessonLDB, innerPadding, this@MainActivity)
-                        }
-
-                        composable(
-                            "auth",
-
-                            exitTransition = {
-                                fadeOut(
-                                    animationSpec = tween(
-                                        150, easing = LinearEasing
-                                    )
-                                ) + slideOutOfContainer(
-                                    animationSpec = tween(150, easing = EaseOut),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                                )
-                            }
-
+                        "loading" -> Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
                         ) {
-                            AuthScreen( navController ) { currentUser = it }
+                            CircularProgressIndicator()
                         }
                     }
+
                 }
             }
         }

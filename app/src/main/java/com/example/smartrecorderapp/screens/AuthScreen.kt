@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import com.example.smartrecorderapp.MainActivity
+import com.example.smartrecorderapp.authentication.AuthState
 import com.example.smartrecorderapp.viewmodels.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -41,12 +43,25 @@ import kotlinx.coroutines.launch
 @Composable
 fun AuthScreen(
     navController: NavHostController,
-    returnAuth: ( FirebaseUser? ) -> Unit,
+    authViewModel: AuthViewModel
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val authViewModel: AuthViewModel = hiltViewModel()
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        authViewModel.authState.collect { state ->
+            when ( state ) {
+                is AuthState.Error ->  {
+                    Toast.makeText(context, "${state.errorMessage}", Toast.LENGTH_SHORT).show()
+                }
+                is AuthState.Idle -> {}
+                is AuthState.Loading -> {}
+                is AuthState.LoggedIn -> navController.navigate("main")
+            }
+        }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -84,30 +99,14 @@ fun AuthScreen(
             ) {
                 ElevatedButton(
                     onClick = {
-                        authViewModel.login(
-                            email,
-                            password,
-                            { returnAuth( it ) },
-                            { Toast.makeText(
-                                context, "Ошибка авторизации",
-                                Toast.LENGTH_SHORT ).show() },
-                            navController
-                        )
+                        authViewModel.login(email, password)
                     }
                 ) {
                     Text("Вход")
                 }
                 ElevatedButton(
                     onClick = {
-                        authViewModel.register(
-                            email,
-                            password,
-                            { returnAuth( it ) },
-                            { Toast.makeText(
-                                context, "Ошибка регистрации",
-                                Toast.LENGTH_SHORT ).show() },
-                            navController
-                        )
+                        authViewModel.register(email, password)
                     }
                 ) {
                     Text("Регистрация")
