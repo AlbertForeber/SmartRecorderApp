@@ -34,19 +34,23 @@ fun LessonScreenTopBar(navController: NavHostController, lessonLDB: ViewModelLDB
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
-                    debugData[2],
+                    debugData[2].replaceAfter('_', "").dropLast(1),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    "${formatDate(debugData[0].toLong())[0]} · 7 неделя",
+                    "${ formatDate(debugData[0].toLong())[0] } · ${lessonLDB.actualWeek.value} неделя",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
         navigationIcon = {
-            IconButton(onClick = { navController.navigate("home") } ) {
+            IconButton(onClick = {
+                navController.navigate("home") {
+                    popUpTo("home") { inclusive = true }
+                }
+            } ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     "Возврат на главный экран",

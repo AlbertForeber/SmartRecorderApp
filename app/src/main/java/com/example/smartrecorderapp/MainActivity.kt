@@ -64,6 +64,7 @@ import com.example.smartrecorderapp.authentication.AuthState
 import com.example.smartrecorderapp.database.Day
 import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 import com.example.smartrecorderapp.date_functional.SelectData
+import com.example.smartrecorderapp.date_functional.StartDateReference
 import com.example.smartrecorderapp.date_functional.formatDate
 import com.example.smartrecorderapp.navigation.NavComposable
 import com.example.smartrecorderapp.screens.AuthScreen
@@ -86,8 +87,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-
 
     @Inject lateinit var auth: FirebaseAuth
 

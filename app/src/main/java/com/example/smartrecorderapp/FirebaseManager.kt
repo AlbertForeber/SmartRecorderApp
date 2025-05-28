@@ -1,9 +1,13 @@
 package com.example.smartrecorderapp
 
+import androidx.compose.ui.platform.LocalContext
 import com.example.smartrecorderapp.authentication.AuthRepository
 import com.example.smartrecorderapp.authentication.AuthRepositoryImpl
+import com.example.smartrecorderapp.date_functional.StartDateReference
 import com.example.smartrecorderapp.realtime_database.RealtimeDBRepository
 import com.example.smartrecorderapp.realtime_database.RealtimeDBRepositoryImpl
+import com.example.smartrecorderapp.storage.StorageRepository
+import com.example.smartrecorderapp.storage.StorageRepositoryImpl
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -38,6 +42,7 @@ abstract class FirebaseManager {
         @Singleton
         @Provides
         fun provideFireBaseStorage(): FirebaseStorage = Firebase.storage
+
     }
 
     // Ставить Singleton над @Binds не имеет смысла (игнорируется), так как метод не является
@@ -47,5 +52,8 @@ abstract class FirebaseManager {
 
     @Binds
     abstract fun bindRealtimeDBRepository( impl: RealtimeDBRepositoryImpl ): RealtimeDBRepository
+
+    @Binds
+    abstract fun bindStorageRepository( impl: StorageRepositoryImpl ): StorageRepository
 
 }

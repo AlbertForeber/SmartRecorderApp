@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -80,7 +81,8 @@ fun LessonCard(lessonString: String,
                         Text(
                             lessonInfo[1],
                             modifier = Modifier
-                                .padding(5.dp, 0.dp)
+                                .padding(5.dp, 0.dp),
+                            color = Color.White
                         )
                     }
                 }

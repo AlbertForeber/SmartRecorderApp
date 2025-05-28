@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,7 +48,7 @@ fun MainScreenTopBar(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Text("${dateParams[2]} · 7 неделя",
+                Text("${dateParams[2]} · ${if (lessonLDB.actualWeek.value != 0) lessonLDB.actualWeek.value else "нерасчитанная"} неделя",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface)
             }
@@ -71,6 +72,17 @@ fun MainScreenTopBar(
             }
         },
         actions = {
+            IconButton(
+                onClick = {
+                    if ( lessonLDB.sharedPrefs.startDate != null ) {
+                        lessonLDB.startDate.value = null
+                        lessonLDB.sharedPrefs.startDate = null
+                        lessonLDB.actualWeek.value = 0
+                    }
+                }
+            ) {
+                Icon(Icons.Filled.Delete, "Очистка стартовой даты", tint = MaterialTheme.colorScheme.tertiary)
+            }
             IconButton(onClick = { lessonLDB.isSelectingDate.value = true }) {
                 Icon(Icons.Filled.DateRange, "Выбор даты", tint = MaterialTheme.colorScheme.primary)
             }

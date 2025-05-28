@@ -1,5 +1,6 @@
 package com.example.smartrecorderapp.viewmodels
 
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.animation.fadeIn
 import androidx.compose.runtime.collectAsState
@@ -26,7 +27,7 @@ import kotlinx.coroutines.withContext
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val auth: FirebaseAuth,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
 

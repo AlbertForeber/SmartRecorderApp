@@ -1,31 +1,14 @@
 package com.example.smartrecorderapp.viewmodels
 
 import android.util.Log
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.query
-import com.example.smartrecorderapp.authentication.AuthRepository
-import com.example.smartrecorderapp.authentication.AuthState
-import com.example.smartrecorderapp.database.LessonFDB
-import com.example.smartrecorderapp.database.LessonsDB
 import com.example.smartrecorderapp.realtime_database.RealtimeDBRepository
-import com.example.smartrecorderapp.realtime_database.RealtimeDBRequest
+import com.example.smartrecorderapp.realtime_database.DataRequest
 import com.example.smartrecorderapp.realtime_database.RealtimeDBState
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.vertexai.type.content
-import com.google.firebase.vertexai.vertexAI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -37,7 +20,6 @@ class FirebaseDBViewModel @Inject constructor(
 ) : ViewModel( ) {
 
     private var _dbState =  MutableStateFlow<RealtimeDBState>(RealtimeDBState.None)
-
     var dbState = _dbState.asStateFlow()
 
     fun addLesson(  date: String,
@@ -47,7 +29,7 @@ class FirebaseDBViewModel @Inject constructor(
         viewModelScope.launch( Dispatchers.IO ) {
             _dbState.value = RealtimeDBState.InProgress
             val result = realtimeDBRepository.addLesson(
-                RealtimeDBRequest(
+                DataRequest(
                     date = date,
                     lessonId = lessonId,
                     audioFile = audioFile
@@ -62,17 +44,20 @@ class FirebaseDBViewModel @Inject constructor(
     fun getLesson( date: String,
                    lessonId: Long ) {
         viewModelScope.launch( Dispatchers.IO ) {
+            Log.i("DEBUGGE", "getLesson ViewModel launched")
             _dbState.value = RealtimeDBState.InProgress
             val result = realtimeDBRepository.getLesson(
-                RealtimeDBRequest(
+                DataRequest(
                     date = date,
                     lessonId = lessonId
                 ) )
             result.fold(
                 onSuccess = {
-                    var result = it?.value.toString()
-                    if ( result == "null" ) _dbState.value = RealtimeDBState.Error("File's not found")
-                    else _dbState.value = RealtimeDBState.Idle( result )
+                    val res = it?.value.toString()
+                    if ( res == "null" ) {
+                        _dbState.value = RealtimeDBState.Error("Запись не обнаружена")
+                    }
+                    else _dbState.value = RealtimeDBState.Idle( res )
                             },
                 onFailure = { _dbState.value = RealtimeDBState.Error( it.message ) }
             )
@@ -80,17 +65,18 @@ class FirebaseDBViewModel @Inject constructor(
     }
 
 
+
     fun removeLesson( date: String,
                       lessonId: Long ) {
         viewModelScope.launch(Dispatchers.IO) {
             _dbState.value = RealtimeDBState.InProgress
             val result = realtimeDBRepository.removeLesson(
-                RealtimeDBRequest(
+                DataRequest(
                     date = date,
                     lessonId = lessonId
                 ) )
             result.fold(
-                onSuccess = { _dbState.value = RealtimeDBState.None },
+                onSuccess = { _dbState.value = RealtimeDBState.Error("Запись удалена") },
                 onFailure = { _dbState.value = RealtimeDBState.Error(it.message) }
             )
         }

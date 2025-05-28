@@ -1,5 +1,6 @@
 package com.example.smartrecorderapp.lesson_functional
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,8 +23,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCbrt
 import androidx.compose.ui.window.Dialog
 import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 
@@ -32,6 +35,7 @@ fun AddLesson(onDismissRequest: () -> Unit, lessonsLDB: ViewModelLDB, dayId: Int
     var lessonName by remember { mutableStateOf("") }
     var lessonIndex by remember { mutableStateOf("1") }
     var isDropped by remember { mutableStateOf(false) }
+    var isAllowed by remember { mutableStateOf(true) }
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
@@ -61,7 +65,7 @@ fun AddLesson(onDismissRequest: () -> Unit, lessonsLDB: ViewModelLDB, dayId: Int
                     OutlinedTextField(
                         value = lessonName,
                         onValueChange = { lessonName = it },
-                        label = { Text("Название пары") },
+                        label = { Text("Имя_Тип") },
                         singleLine = true,
                         modifier = Modifier.width(200.dp)
                     )
@@ -139,14 +143,24 @@ fun AddLesson(onDismissRequest: () -> Unit, lessonsLDB: ViewModelLDB, dayId: Int
                         }
                     }
                 }
+                if ( !isAllowed ) {
+                    Text( "Недопустимое название", fontStyle = MaterialTheme.typography.labelSmall.fontStyle )
+                }
                 ElevatedButton(
                     onClick = {
-                        lessonsLDB.insertDay(dayId, lessonIndex.toInt(), lessonName)
-                        onDismissRequest()
+                        if ( lessonName.isNotBlank() && lessonName.count { it == '_' } == 1 ) {
+                            isAllowed = true;
+                            lessonsLDB.insertDay(dayId, lessonIndex.toInt(), lessonName)
+                            onDismissRequest()
+                        }
+                        else {
+                            isAllowed = false
+                        }
                     }
                 ) {
                     Text("Подтвердить")
                 }
+
             }
         }
     }
