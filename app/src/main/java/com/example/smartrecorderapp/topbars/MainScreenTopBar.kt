@@ -17,10 +17,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 import com.example.smartrecorderapp.date_functional.formatDate
+import com.example.smartrecorderapp.viewmodels.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
@@ -56,7 +58,7 @@ fun MainScreenTopBar(
         navigationIcon = {
             IconButton(
                 onClick = {
-                    auth.signOut() // TODO перенести в AuthViewModel
+                    auth.signOut()
                     returnAuth( auth.currentUser )
                     navController.navigate("auth") {
                         popUpTo("home") { inclusive = true }

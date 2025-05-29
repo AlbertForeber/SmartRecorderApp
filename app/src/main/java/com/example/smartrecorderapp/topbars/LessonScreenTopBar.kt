@@ -14,15 +14,18 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.smartrecorderapp.viewmodels.ViewModelLDB
 import com.example.smartrecorderapp.date_functional.formatDate
+import com.example.smartrecorderapp.viewmodels.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonScreenTopBar(navController: NavHostController, lessonLDB: ViewModelLDB) {
     var debugData = lessonLDB.getRememberedData()
+
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
